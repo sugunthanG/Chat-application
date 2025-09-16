@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>chat with stranger</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+    <div class="theme-switch" onclick="toggleDarkMode()" title="theme">🌙</div>
+    <br />
+    <h1 style="text-align: center;">Chat with <span>Strangers</span></h1>
+    <br /><br />
+    <div id="Chat">
+        <ul id="messages"></ul>     
+        <form id="chat-form">
+            <input id="message" type="text" placeholder="Type your message..."/>
+           <input type="file" accept="image/*"/>
+            <button>Send</button> 
+        </form>
+    </div>
+</body>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/script.js"></script>
+
+<script>
+    // Add this script to toggle dark mode
+    function toggleDarkMode() {
+        const body = document.body;
+        body.classList.toggle("dark-mode");
+    }
+</script>
+</html>
