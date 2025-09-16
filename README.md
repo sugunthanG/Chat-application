@@ -1,3 +1,4 @@
+<<<<<<< HEAD
                                        Chat with Strangers
 
 
@@ -41,3 +42,6 @@ Welcome to the "Chat with Strangers" application! This is a simple chat applicat
 
 If you'd like to contribute to the project, please follow the standard GitHub fork and pull request workflow.
 
+=======
+# Chat-application
+>>>>>>> a3bcb7071ab9b0a394ad2b59a445c325a41e4983
