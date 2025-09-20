@@ -3,56 +3,26 @@ const socket = io();
 let username;
 const form = document.getElementById("chat-form");
 const input = form.querySelector('input[type="text"]');
-const fileInput = form.querySelector('input[type="file"]');
 const messages = document.getElementById("messages");
 
+// send text message only
 form.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    const reader = new FileReader();
-    const file = fileInput.files[0];
-
-    if (!file && !input.value) {
-        alert("Please enter the message");
+    if (!input.value.trim()) {
+        alert("Please enter a message");
         return;
     }
 
-    if (file) {
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-            const imageData = {
-                author: username,
-                content: input.value,
-                image: reader.result
-            };
-            socket.emit("chat message", imageData);
-            input.value = "";
-            fileInput.value = "";
-        };
-    } else {
-        const textData = {
-            author: username,
-            content: input.value,
-            image: null
-        };
-        socket.emit("chat message", textData);
-        input.value = "";
-    }
+    const textData = {
+        author: username,
+        content: input.value
+    };
+    socket.emit("chat message", textData);
+    input.value = "";
 });
 
-// Add event listener for file input
-fileInput.addEventListener('change', () => {
-    const file = fileInput.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-       
-        };
-    }
-});
-
-
+// username setup
 if (localStorage.getItem('username')) {
     username = localStorage.getItem('username');
     socket.emit("username", username);
@@ -70,9 +40,7 @@ if (localStorage.getItem('username')) {
         },
         confirmButtonText: "Enter Chat",
         showLoaderOnConfirm: true,
-        preConfirm: (username) => {},
     }).then((result) => {
-        console.log(result);
         username = result.value;
         socket.emit("username", username);
         localStorage.setItem("username", username);
@@ -83,34 +51,47 @@ function scrollToBottom() {
     messages.scrollTop = messages.scrollHeight;
 }
 
-//user joined status 
-socket.on('user joined', (username) => {
+// user joined status 
+socket.on('user joined', (joinedUser) => {
     const item = document.createElement('li');
-    item.classList.add('chat-message');
-    item.innerHTML = `<span class='chat-username'>${username}</span> : has joined the chat`;
+    item.classList.add('chat-status');
+
+    if (joinedUser === username) {
+        item.innerHTML = `<span class='chat-username'>You</span> have joined the chat`;
+    } else {
+        item.innerHTML = `<span class='chat-username'>Stranger</span> has joined the chat`;
+    }
+
     messages.appendChild(item);
     scrollToBottom();
 });
 
-//user left status
-socket.on('user left', (data) => {
+// user left status
+socket.on('user left', (leftUser) => {
     const item = document.createElement('li');
-    item.classList.add('chat-message');
-    item.innerHTML = `<span class='chat-username2'>${data}</span> : has left the chat`;
+    item.classList.add('chat-status');
+
+    if (leftUser === username) {
+        item.innerHTML = `<span class='chat-username2'>You</span> have left the chat`;
+    } else {
+        item.innerHTML = `<span class='chat-username2'>Stranger</span> has left the chat`;
+    }
+
     messages.appendChild(item);
     scrollToBottom();
 });
 
+// chat messages
 socket.on('chat message', (msg) => {
     const item = document.createElement("li");
-    item.classList.add("chat-message");
-    item.innerHTML = `<span class="chat-username">${msg.author}</span> : ${msg.content}`;
 
-    if (msg.image) {
-        const img = document.createElement("img");
-        img.src = msg.image;
-        img.classList.add("image");
-        item.appendChild(img);
+    // check who sent the message
+    if (msg.author === username) {
+        item.classList.add("chat-message", "you");
+        item.innerHTML = `<div class="message-bubble you"><span class="chat-username">You</span><p>${msg.content}</p></div>`;
+    } else {
+        item.classList.add("chat-message", "stranger");
+        item.innerHTML = `<div class="message-bubble stranger"><span class="chat-username">Stranger</span><p>${msg.content}</p></div>`;
     }
 
     messages.appendChild(item);

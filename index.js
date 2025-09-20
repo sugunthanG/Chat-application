@@ -39,7 +39,6 @@ app.get('/',(req,res) => {
 })
 
 //socket connection
-
 io.on('connection',(socket) =>{
     console.log("A new client connected")
 
@@ -74,8 +73,7 @@ io.on('connection',(socket) =>{
         .catch((err) => console.log(err))
     })
 
-    socket.on('disconnect',() => {
-     
+    socket.on('disconnect',() => {     
             io.emit("user left", socket.username);
     })
 })
