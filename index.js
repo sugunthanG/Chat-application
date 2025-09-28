@@ -6,6 +6,11 @@ app.use(express.static('public'));
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
+const PORT = process.env.PORT || 5000;
+
+// === add this line (health route) ===
+app.get('/health', (req, res) => res.json({ ok: true }));
+
 // ================== MongoDB Atlas connection ==================
 const MONGODB_URL = process.env.MONGODB_URI || "mongodb://localhost:27017/sample";
 
@@ -88,6 +93,8 @@ io.on('connection', (socket) => {
 });
 
 // ================== Start Server ==================
-http.listen(5000, () => {
-    console.log("🚀 App is running on http://localhost:5000");
+
+
+http.listen(PORT, () => {
+    console.log(`🚀 App is running on http://localhost:${PORT}`);
 });
