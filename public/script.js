@@ -1,4 +1,5 @@
-const socket = io();
+const socket = io("https://chat-with-stranger-twog.onrender.com");
+
 
 let username;
 const form = document.getElementById("chat-form");

@@ -4,7 +4,12 @@ const app = express();
 app.use(express.static('public'));
 
 const http = require('http').createServer(app);
-const io = require('socket.io')(http);
+const io = require("socket.io")(http, {
+  cors: {
+    origin: "*",  // (for now allow all, later restrict to your frontend domain)
+    methods: ["GET", "POST"]
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 
@@ -36,9 +41,9 @@ const Message = mongoose.model("Message", MessageSchema);
 const User = mongoose.model("User", UserSchema);
 
 // ================== Routes ==================
-app.get("/", (req, res) => {
-    res.sendFile(__dirname + "/index.html");
-});
+// app.get("/", (req, res) => {
+//     res.sendFile(__dirname + "/index.html");
+// });
 
 // ================== Socket.io ==================
 io.on('connection', (socket) => {
