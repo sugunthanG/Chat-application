@@ -23,7 +23,7 @@ app.get('/health', (req, res) => res.json({ ok: true }));
 
 // ===== MongoDB Atlas connection =====
 const MONGODB_URL = process.env.MONGODB_URI;
-// console.log("MongoDB URI:", MONGODB_URL);
+console.log("MongoDB URI:", MONGODB_URL);
 
 mongoose.connect(MONGODB_URL)
 .then(() => console.log("✅ Connected to MongoDB Atlas"))
