@@ -1,29 +1,35 @@
+// Load environment variables first
+require("dotenv").config(); 
+
 const express = require('express');
 const mongoose = require('mongoose');
+
 const app = express();
 app.use(express.static('public'));
 
+// HTTP + Socket.io setup
 const http = require('http').createServer(app);
 const io = require("socket.io")(http, {
   cors: {
-    origin: "*",  // (for now allow all, later restrict to your frontend domain)
+    origin: "*",  
     methods: ["GET", "POST"]
   }
 });
 
 const PORT = process.env.PORT || 5000;
 
-// === add this line (health route) ===
+// ===== Health check route =====
 app.get('/health', (req, res) => res.json({ ok: true }));
 
-// ================== MongoDB Atlas connection ==================
-const MONGODB_URL = process.env.MONGODB_URI || "mongodb://localhost:27017/sample";
+// ===== MongoDB Atlas connection =====
+const MONGODB_URL = process.env.MONGODB_URI;
+// console.log("MongoDB URI:", MONGODB_URL);
 
 mongoose.connect(MONGODB_URL)
 .then(() => console.log("✅ Connected to MongoDB Atlas"))
 .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// ================== Schemas ==================
+// ===== Schemas =====
 const MessageSchema = new mongoose.Schema({
     author: String,
     content: String,
@@ -36,32 +42,23 @@ const UserSchema = new mongoose.Schema({
     password: String,
 });
 
-// ================== Models ==================
+// ===== Models =====
 const Message = mongoose.model("Message", MessageSchema);
 const User = mongoose.model("User", UserSchema);
 
-// ================== Routes ==================
-// app.get("/", (req, res) => {
-//     res.sendFile(__dirname + "/index.html");
-// });
-
-// ================== Socket.io ==================
+// ===== Socket.io logic =====
 io.on('connection', (socket) => {
     console.log("🔗 A new client connected");
 
     // Load old messages when user joins
     Message.find({})
-        .then((messages) => {
-            socket.emit("load messages", messages);
-        })
-        .catch(err => console.log(err));
+        .then(messages => socket.emit("load messages", messages))
+        .catch(err => console.error(err));
 
     // Load users list when user joins
     User.find({})
-        .then((users) => {
-            socket.emit("load users", users);
-        })
-        .catch(err => console.log(err));
+        .then(users => socket.emit("load users", users))
+        .catch(err => console.error(err));
 
     // When user sets a username
     socket.on('username', (username) => {
@@ -97,9 +94,7 @@ io.on('connection', (socket) => {
     });
 });
 
-// ================== Start Server ==================
-
-
+// ===== Start server =====
 http.listen(PORT, () => {
     console.log(`🚀 App is running on http://localhost:${PORT}`);
 });
