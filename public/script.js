@@ -5,7 +5,10 @@ const form = document.getElementById("chat-form");
 const input = form.querySelector('input[type="text"]');
 const messages = document.getElementById("messages");
 
-// send text message only
+// Request old messages when client loads
+socket.emit("load old messages");
+
+// Send text message
 form.addEventListener("submit", (e) => {
     e.preventDefault();
 
@@ -22,7 +25,6 @@ form.addEventListener("submit", (e) => {
     input.value = "";
 });
 
-// username setup
 if (localStorage.getItem("username")) {
     username = localStorage.getItem("username");
     socket.emit("username", username);
@@ -51,7 +53,7 @@ function scrollToBottom() {
     messages.scrollTop = messages.scrollHeight;
 }
 
-// user joined status 
+// User joined status 
 socket.on("user joined", (joinedUser) => {
     const item = document.createElement("li");
     item.classList.add("chat-status");
@@ -66,7 +68,7 @@ socket.on("user joined", (joinedUser) => {
     scrollToBottom();
 });
 
-// user left status
+// User left status
 socket.on("user left", (leftUser) => {
     const item = document.createElement("li");
     item.classList.add("chat-status");
@@ -81,7 +83,7 @@ socket.on("user left", (leftUser) => {
     scrollToBottom();
 });
 
-// chat messages (real-time)
+// Chat messages (real-time)
 socket.on("chat message", (msg) => {
     const item = document.createElement("li");
 
@@ -97,7 +99,7 @@ socket.on("chat message", (msg) => {
     scrollToBottom();
 });
 
-// load old messages when joining
+// Load old messages
 socket.on("load messages", (msgs) => {
     msgs.forEach((msg) => {
         const item = document.createElement("li");

@@ -1,5 +1,5 @@
 // Load environment variables first
-require("dotenv").config(); 
+require("dotenv").config();
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -10,10 +10,10 @@ app.use(express.static('public'));
 // HTTP + Socket.io setup
 const http = require('http').createServer(app);
 const io = require("socket.io")(http, {
-  cors: {
-    origin: "*",  
-    methods: ["GET", "POST"]
-  }
+    cors: {
+        origin: "*",  
+        methods: ["GET", "POST"]
+    }
 });
 
 const PORT = process.env.PORT || 5000;
@@ -50,12 +50,14 @@ const User = mongoose.model("User", UserSchema);
 io.on('connection', (socket) => {
     console.log("🔗 A new client connected");
 
-    // Load old messages when user joins
-    Message.find({})
-        .then(messages => socket.emit("load messages", messages))
-        .catch(err => console.error(err));
+    // Send old messages on request
+    socket.on("load old messages", () => {
+        Message.find({}).sort({ timestamp: 1 })
+            .then(messages => socket.emit("load messages", messages))
+            .catch(err => console.error(err));
+    });
 
-    // Load users list when user joins
+    // Load users list
     User.find({})
         .then(users => socket.emit("load users", users))
         .catch(err => console.error(err));
@@ -80,8 +82,6 @@ io.on('connection', (socket) => {
         try {
             await message.save();
             console.log('✅ Message saved to MongoDB');
-
-            // Emit to all clients after saving
             io.emit('chat message', msg);
         } catch (err) {
             console.error('❌ Error saving message:', err);
